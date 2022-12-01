@@ -1,0 +1,236 @@
+create database trabalho_final;
+use trabalho_final;
+
+create table empresa(
+idempresa int primary key auto_increment, 
+endereco varchar(40)
+);
+
+create table funcionario(
+idfuncionario int primary key auto_increment,/*Chave primaria*/
+nome varchar(50),
+idade int,
+empresa_idempresa2 int/*Chave estrangeira da tabela empresa*/
+);
+
+create table cliente(
+idcliente int primary key auto_increment,/*Chave primaria*/
+nome varchar(45),
+cpf varchar(20),
+predio_idpredio int/*Chave estrangeira da tabela predio*/
+);
+
+create table patio(
+num int primary key auto_increment,/*Chave primaria*/
+capacidade int,
+ender varchar(40),
+empresa_idempresa int/*Chave estrangeira da tabela empresa*/
+);
+
+create table estaciona(
+codEstaciona int primary key auto_increment,/*Chave primaria*/
+dataENT varchar(20),
+dataSAI varchar(20),
+patio_num INT/*Chave estrangeira da tabela patio*/
+);
+
+create table veiculo(
+idveiculo int primary key auto_increment,/*Chave primaria*/
+cor varchar(20),
+placa varchar(10),
+cliente_idcliente int,/*Chave estrangeira da tabela cliente*/
+funcionario_idfuncionario int, /*Chave estrangeira da tabela funcionario*/
+estaciona_codEstaciona int/*Chave estrangeira da tabela estaciona*/
+);
+
+create table modelo(
+idmodelo int primary key auto_increment,/*Chave estrangeira*/
+categoria varchar(10),
+ano int,
+veiculo_idveiculo int/*Chave estrangeira da tabela veiculo*/
+);
+
+select nome, placa from funcionario inner join veiculo
+where funcionario.idfuncionario = veiculo.idveiculo;/*Aqui usei o inner join puxando a tabela nome(nome do funcionario) e a 
+placa do veiculo(veiculo do funcionario). */
+
+select nome, placa from cliente inner join veiculo 
+where cliente.idcliente = veiculo.idveiculo;/*Sim sora eu sei que deveria ter feito uma tabela de veiculos para funcionários e outra para clientes*/
+
+select endereco as enderecoEmpresa, ender as enderecoPatio from empresa inner join patio
+on empresa.idempresa = patio.num;/*Puxei o endereco da empresa e onde fica o endereco do patio dessa empresa*/
+
+select idveiculo, categoria, placa, cor from veiculo left join modelo
+on veiculo.idveiculo = modelo.idmodelo;/*Aqui puxei as informações do veiculo falando que se minha tabela modelo estiver a esquerda de veiculo é pra ele puxar as informações*/
+
+select num as patioNumero, capacidade as capacidadeDeVeiculos, ender as enderecoPatio, codEstaciona as codigoEstacionamento 
+from estaciona inner join patio;/*Peguei o número do patio a capacidade de veiculos, o endereco desse patio e o código de estacionamento pois vou ter um patio
+que vai ter varios estacionamentos determinados por códigos*/
+
+/*5 Consultas com Order By*/
+select idade from funcionario 
+order by idade desc;/*Aqui eu estou selecionando idade da tabela funcionario e ordenando a coluna idade desc*/
+
+select capacidade from patio 
+order by capacidade asc;/*Estou selecionando a coluan capacidade da tabela patio ordernando a capaciade por asc*/
+
+select ano from modelo 
+order by ano desc;/*Aqui eu estou selecionando ano da tabela modelo ordenando a coluna ano desc*/
+
+select num from patio
+order by num asc;/*Aqui eu estou selecionando num da tabela patio e ordenando a coluna num asc*/
+
+select codEstaciona from estaciona
+order by codEstaciona desc; /*Aqui eu estou selecionando codEstaciona da tabela estaciona e ordenando a coluna codEstaciona desc*/
+
+/*5 Consultas com Group By*/
+select num, max(capacidade) from patio
+where capacidade < 5
+group by num;/*Aqui eu quero a capacidade maxima da da coluna capacidade da tabela patio onde capaciade vai ser menor que 5 e estou agrupando por num*/
+
+select num, ender, count(capacidade) from patio inner join veiculo
+on patio.num = veiculo.idveiculo
+where cor = 'preto'
+group by cor ;   /*aqui eu estou vendo a contanto qual a capacidade maxima da coluna capacidade da tabela patio, estou juntando a tabela veiculo e passando que quero os carros que tem cor preta e agrupando por cor */
+
+select * from patio;
+select * from veiculo;
+
+select cor,count(idveiculo) from veiculo
+where cor = 'preto'
+group by cor;/**/
+
+select idmodelo, categoria, ano from modelo
+where ano = 2022
+group by ano;
+
+/*Trazer três consultas que combinem join e order by*/
+select nome, idade, placa, cor from funcionario left join veiculo 
+on funcionario.idfuncionario = veiculo.idveiculo
+where cor = 'preto' order by idade desc;
+
+select nome, placa, cor from cliente inner join veiculo 
+on cliente.idcliente = veiculo.idveiculo
+where cor = 'preto' order by nome;
+
+select capacidade, codEstaciona from patio inner join estaciona
+on patio.num = estaciona.codEstaciona 
+group by capacidade having capacidade > 4
+order by codEstaciona;
+
+select cor, placa, categoria, ano from veiculo inner join modelo
+on veiculo.idveiculo = modelo.idmodelo
+where cor = 'preto' or 'verde'
+order by ano desc;
+
+select num,ender,dataENT, dataSAI from patio inner join estaciona
+on patio.num = estaciona.codEstaciona
+where dataENT like '1/12/2022' or dataENT like '1/14/2022'
+order by num desc;
+
+/*trazer consultas com funçôes matemáticas*/
+select count(capacidade) from patio;
+
+select avg(idade) as Média_idadeFuncionarios from funcionario;
+
+select min(ano) from modelo;
+
+select max(capacidade) from patio;
+
+select hex(cpf) from cliente
+where idcliente = 2;
+
+select avg(ano) from modelo;
+
+select count(idveiculo) as veiculos_Funcionarios_Clintes from veiculo;
+
+/*Trazer cinco visões*/
+
+create view view_veiculo as select * from veiculo;
+
+create view view_empresa as select * from empresa;
+
+create view view_funcionario as select * from funcionario;
+
+create view view_cliente as select * from cliente;
+
+create view view_patio as select * from patio;
+
+create view view_estaciona as select * from estaciona;
+ 
+create view view_modelo as select * from modelo;
+
+/*Criar cinco savepoints*/
+start transaction;
+insert into empresa values
+(16,'avenida alberto pp'),
+(17, 'domingues farias'),
+(18, 'independc');
+savepoint bloco1;
+rollback to bloco1;
+
+start transaction;
+insert into patio value
+(16, 22, 'pedro cantares 123',16),
+(17, 4, 'av tomaz edison', 17),
+(18, 9, 'avenida das américas 456', 18);
+savepoint bloco2;
+rollback to bloco2;
+
+start transaction;
+insert into modelo value 
+(16,'familiar', 2022, 16),
+(17, 'off road', 2017, 17),
+(18, 'esportivo',2016 ,  18);
+savepoint bloco3;
+rollback to bloco3;
+
+start transaction;
+insert into cliente value
+(16,'Alice barabosa', 01254875621, 16),
+(17, 'victor hugo', 45145169885, 17),
+(18, 'Samantha ostermann', 12365894568,  18);
+savepoint bloco4;
+rollback to bloco4;
+
+start transaction;
+insert into funcionario value
+(16,'Pedro barbosa', 22, 16),
+(17, 'Amanda barbosa', 29, 17),
+(18, 'Matheus rocha',32 ,  18);
+
+create user 'Henrique' @'localhost' identified by '123';
+
+create user 'Jennifer' @'localhost' identified by '321';
+
+create user 'Adriano' @'localhost' identified by '231';
+
+grant select on trabalho_final.view_veiculo to 'Henrique' @'localhost'; 
+
+grant insert on trabalho_final.cliente to 'Jennifer' @'localhost';
+
+grant select on trabalho_final.funcionario to 'Adriano' @'localhost';
+
+show grants for 'Adriano' @'localhost';
+
+show grants for 'Henrique' @'localhost';
+
+show grants for 'Jennifer' @'localhost';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
